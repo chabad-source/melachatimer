@@ -39,7 +39,7 @@ The solution is here!
 -   Timezone is locked to EST unless you flash it yourself.
 -   Your location won't be 100% accurate (you can update it via the web UI). 
 
-*Instructions*
+*Setup*
 -   Download the melachaplug.bin file from above. (currently none are compiled)
 -   If your device is using Tasmota, follow instructions on how to upgrade from the [ESPHome docs](https://esphome.io/guides/migrate_sonoff_tasmota.html) or [Tasmota docs](https://tasmota.github.io/docs/Upgrading/#upgrade-using-webui).
 -   If your device is using ESPHome, use the web UI to install the firmware.
@@ -51,6 +51,35 @@ The solution is here!
 -   Set up your own ESPhome instance. If you have [Home Assistant](https://www.home-assistant.io/) then use the [ESPHome Dashboard](https://esphome.io/guides/getting_started_hassio.html), otherwise follow the [Command Line Interface](https://esphome.io/guides/getting_started_command_line.html) guide.
 -   Find the YAML file for your device from the esphome folder above.
 -   Configure the YAML settings to your liking, and flash device (more details on the ESPHome site).
+
+
+## Usage
+
+*first time setup*
+-   Use "Detect Location" to auto detect your current location or put in your Latitude and Longitude manually.
+-   Set the degree Shaboos/Yom Tov starts and ends. Default to "-0.833" (sunset) for start and "-8.5" (Alter Rebbe Tzeis) for the end.
+-   Set early Shabbos if you execept in shabbos early. (it's hard coded to use Alter Rebbe Plag, use the offset feature to adapt).
+-   Those in Eretz Yisroel select "Eretz Yisrael".
+
+*timer configuration*
+-   Select - Use this dropdown to select a timer to adjust a timers settings.
+-   Enabled - Sets the timer as active.
+-   Mode - When set to '0' it uses the time put into the "Time Hour" and "Time Minute". '1' uses sunrise. '2' uses sunset. '3' uses on a regular day tzeis, on a day before Shabbos or Yom Tov it uses the Shabbos Start time and on the last day of either Shabbos or Yom Tov it uses Shabbos End time.
+-    Time Hour - Set the timer hour (Mode needs to be set to 0).
+-    Time Minute - Set the timer minute (Mode needs to be set to 0).
+-    Repeat - When disabled timer runs once when enabled it follows the rules set in the next toggles.
+-    Sunday-Saturday - Select it based on the days of the week you'd like the timer to repeat.
+-    Day Before Shabbos Or Yom Tov - Use this toggle to set timers for the day before Shabbos or Yom Tov (in addtion to whatever days of the week is set).
+-    Day Of Shabbos Or Yom Tov - Any day which is either Shabbos or Yom Tov.
+-    Last Day Of Shabbos Or Yom Tov - Just the last day (goes based on if the next day melacha is permitted).
+-    Output - if you have mutiple switches or plugs running off one device this will set which one the timer is being used for (counting starts from 0).
+-    Action - Sets what you want the relay to do '0' = turn off, '1' = turn on, '2' = toggles the relay.
+-    Offset Hour-Minute - Set the offset time before (see "Negative Offset") or after the time set.
+-    Negative Offset - Set the offset to be before the set vs after.
+
+*other setup*
+-   On the top there is "Relay 1 (Plug)" which is how to manually set the state of the plug/switch.
+-   Use "Timer Override All" to override the timers settings and have the relay stay in the position you set it.
 
 ## Advanced
 
