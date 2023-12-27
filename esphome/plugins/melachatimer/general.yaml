@@ -1,0 +1,36 @@
+#--------------------------------------------
+#-------------- General Config --------------
+#--------------------------------------------
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  # name_add_mac_suffix: true
+  project:
+    name: chabad-source.melachatimer
+    version: "2023.12.25.0"
+
+# frequency of data flushed to the flash
+preferences:
+  flash_write_interval: 2min
+
+# Enable Over The Air updates
+ota:
+
+# Enable fallback hotspot
+captive_portal:
+
+wifi:
+  # Configure fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${friendly_name} Fallback"
+    password: ""                  # password of fallback hotspot
+
+# Enable Web Interface
+web_server:
+  port: 80
+  include_internal: true
+
+sun:
+  id: mysun
+  latitude: ${latitude}
+  longitude: ${longitude}

@@ -1,0 +1,15 @@
+#--------------------------------------------
+#------------- Optional Config --------------
+#--------------------------------------------
+
+# Enable logger for debugging 
+logger:
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s              # no need to connect to HA so no reboot necessary
+
+# restart button
+button:
+  - platform: restart
+    name: 999 Restart Device

@@ -1,0 +1,279 @@
+#--------------------------------------------
+#--------------- timer config ---------------
+#--------------------------------------------
+esphome:
+  on_boot:
+    - priority: 800                      # This is where all hardware initialization of vital components is executed
+      then:
+        - delay: 20s
+        - lambda: |-
+            Timer::setTimestamps();
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: ${timezone}
+    on_time_sync:
+      then:
+        - logger.log: --------- on_time_sync ---------"
+        - globals.set: 
+            id: time_valid
+            value: 'true'
+    on_time:        # every day at 12am refresh the timestamps
+      - seconds: 0
+        minutes: 0
+        hours: 0
+        then:
+          - lambda: |-
+              Timer::setTimestamps();
+
+interval:
+  - interval: 1min
+    then:
+      - lambda: |-
+          Timer::onInterval();
+
+# /***************************************************
+# *      ***** Timer Format Cheat Guide *****
+# * **************************************************
+# *              ***** Switches *****
+# *   *** Value set to '1' enabled '0' disabled ***
+# * 0 = Enabled
+# * 1-7 = Days (sun-sat)
+# * 8 = Repeat
+# * 9 = Negative Offset
+# * 10 = Issur Melacha day
+# * 10 = Day before shabbos or yom tov (Issur Melacha)
+# * 11 = Issur Melacha day
+# * 12 = last day of Issur Melacha
+# *               ***** Numbers *****
+# * 0 = Time hour
+# * 1 = Time minute
+# * 2 = Output  {value '0' for the first position of switch in the 'relays' variable}
+# * 3 = Action  {'0' turn off, '1' turn on, '2' toggle}
+# * 4 = Offset hour
+# * 5 = Offset minute
+# * 6 = Mode    {'0' use time, '1' use sunrise, '2' use sunset, '3' use shabbos/yom tov start time or otherwise tzeis}  
+# ****************************************************/
+
+globals:
+  - id: global_timer_switches
+    type: uint8_t[20][13]
+    restore_value: yes # switch to yes for deployment
+  - id: global_timer_numbers
+    type: uint8_t[20][7]
+    restore_value: yes # switch to yes for deployment
+  - id: global_last_run
+    type: time_t[20]
+    restore_value: yes # switch to yes for deployment
+  - id: global_next_run
+    type: time_t[20]
+    restore_value: no
+
+number:
+  - platform: template
+    name: "24 Timer Time Hour"
+    id: time_hour
+    optimistic: true
+    restore_value: false
+    min_value: 0
+    max_value: 23
+    step: 1
+    unit_of_measurement: Hours
+    mode: box
+  - platform: template
+    name: "25 Timer Time Minute"
+    id: time_minute
+    optimistic: true
+    restore_value: false
+    min_value: 0
+    max_value: 59
+    step: 1
+    unit_of_measurement: Minutes
+    mode: box
+  - platform: template
+    name: "40 Timer Output"
+    id: output
+    optimistic: true
+    restore_value: false
+    initial_value: 0
+    min_value: 0
+    max_value: 1
+    step: 1
+    unit_of_measurement: Relay Position
+    mode: box
+  - platform: template
+    name: "41 Timer Action"
+    id: action
+    optimistic: true
+    restore_value: false
+    min_value: 0
+    max_value: 2
+    step: 1
+    mode: box
+  - platform: template
+    name: "42 Timer Offset Hour"
+    id: offset_hour
+    optimistic: true
+    restore_value: false
+    min_value: 0
+    max_value: 11
+    step: 1
+    unit_of_measurement: Hours
+    mode: box
+  - platform: template
+    name: "43 Timer Offset Minute"
+    id: offset_minute
+    optimistic: true
+    restore_value: false
+    min_value: 0
+    max_value: 59
+    step: 1
+    unit_of_measurement: Minutes
+    mode: box
+  - platform: template
+    name: "23 Timer Mode"
+    id: mode
+    optimistic: true
+    restore_value: false
+    min_value: 0
+    max_value: 3
+    step: 1
+    mode: box
+
+switch:
+  - platform: template
+    name: 22 Timer Enabled
+    id: enabled
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+
+  - platform: template
+    name: 27 Timer Sunday
+    id: sunday
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 28 Timer Monday
+    id: monday
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 29 Timer Tuesday
+    id: tuesday
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 30 Timer Wednesday
+    id: wednesday
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 31 Timer Thursday
+    id: thursday
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 32 Timer Friday
+    id: friday
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 33 Timer Saturday
+    id: saturday
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+
+  - platform: template
+    name: 26 Timer Repeat
+    id: repeat
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 44 Timer Negative Offset
+    id: negative_offset
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 34 Timer Day Before Shabbos Or Yom Tov
+    id: day_before_issur
+    optimistic: true      # set to true for status to be updated immediately
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 35 Timer Day Of Shabbos Or Yom Tov
+    id: day_of_issur
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 36 Timer Last Day Of Shabbos Or Yom Tov
+    id: last_day_of_issur
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+
+  - platform: template
+    name: 11 Timer Override All
+    id: override_timer
+    optimistic : true
+    restore_mode: ALWAYS_OFF
+
+select:
+  - platform: template
+    id: select_timer
+    name: "20 Timer Select"
+    optimistic : true
+    restore_value: false
+    initial_option: -- Select --
+    options: 
+      - -- Select --
+      - Timer 1
+      - Timer 2
+      - Timer 3
+      - Timer 4
+      - Timer 5
+      - Timer 6
+      - Timer 7
+      - Timer 8
+      - Timer 9
+      - Timer 10
+      - Timer 11
+      - Timer 12
+      - Timer 13
+      - Timer 14
+      - Timer 15
+      - Timer 16
+      - Timer 17
+      - Timer 18
+      - Timer 19
+      - Timer 20
+    on_value:
+      - lambda: |-
+          Timer::onSelect(x);
+
+button:
+  - platform: template
+    name: 21 Timer Save
+    on_press:
+      - lambda: |-
+          Timer::onPressSave();
+
+text_sensor:
+  - platform: template
+    name: 12 Current Time
+    internal: false
+    lambda: 'return id(sntp_time).now().strftime("%a, %b %e, %Y, %l:%M %p");'
+    update_interval: 60s
+  - platform: sun
+    name: 14 Next Sunset (elevated -0.833° - default)
+    internal: true
+    id: ts_sunset
+    type: sunset
+    format: "%a, %b %e, %l:%M %p"
+    update_interval: never
+  - platform: sun
+    name: 15 Tzeit Hakochavim - Nightfall (elevated ${deg_tzeit}°)
+    internal: true
+    id: ts_tzeit
+    type: sunset
+    format: "%a, %b %e, %l:%M %p"
+    update_interval: never
+    elevation: ${deg_tzeit}°

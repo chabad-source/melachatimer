@@ -1,0 +1,61 @@
+#--------------------------------------------
+#-------------- Location Info ---------------
+#--------------------------------------------
+esphome:
+  on_boot:
+    - priority: -100.0                   # pretty much everything should already be initialized
+      then:
+        # - logger.log: "--- Waiting for hdate to be valid  ---"
+        # - wait_until:
+        #     lambda: 'return id(hdate_valid);'
+        # - logger.log: --------- hdate valid ---------"
+        - lambda: 'Location::onBoot(${latitude}, ${longitude});'
+
+# Enable HTTP Requests (for auto location API)
+http_request:
+  useragent: esphome/device
+  timeout: 10s
+
+text_sensor:
+  # text sensor to display the location 
+  - platform: template
+    name: 50 Location Info
+    internal: true
+    id: location_info
+    update_interval: never
+
+number:
+  - platform: template
+    name: 53 Set Latitude
+    id: latitude_number
+    optimistic: true
+    min_value: -180.0000
+    max_value: 180.0000
+    step: .0001
+    mode: box
+    restore_value: true
+    initial_value: ${latitude}
+    on_value:
+      - lambda: 'Location::onLatitudeSet();'
+  - platform: template
+    name: 54 Set Longitude
+    id: longitude_number
+    optimistic: true
+    min_value: -180.0000
+    max_value: 180.0000
+    step: .0001
+    mode: box
+    restore_value: true
+    initial_value: ${longitude}
+    on_value:
+      - lambda: 'Location::onLongitudeSet();'
+
+button:
+  - platform: template
+    name: 51 Detect Location
+    on_press:
+      - lambda: 'Location::detectLocation();'
+  - platform: template
+    name: 52 Revert to Default Location
+    on_press:
+      - lambda: 'Location::revertToDefaultLocation(${latitude}, ${longitude});'

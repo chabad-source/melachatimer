@@ -1,0 +1,65 @@
+#--------------------------------------------
+#-------------- Melacha Config --------------
+#--------------------------------------------
+
+# variables publicly (internally) available
+globals:
+  - id: hdate_valid
+    type: bool
+    restore_value: no
+    initial_value: "false"
+  - id: time_valid
+    type: bool
+    restore_value: no
+    initial_value: "false"
+  - id: deg_tzeit
+    type: float
+    initial_value: ${deg_tzeit}
+    restore_value: no
+
+switch:
+  - platform: template
+    name: 55 Eretz Yisrael
+    id: eretz_yisrael
+    optimistic: true      # set to true for status to be updated immediately
+    restore_mode: ${eretz_yisrael}
+  - platform: template
+    name: 59 Early Shabbos (Plag Hamincha AR)
+    id: early_shabbos
+    optimistic: true      # set to true for status to be updated immediately
+    restore_mode: RESTORE_DEFAULT_OFF
+
+text_sensor:
+  - platform: template
+    name: 13 Hebrew Date
+    id: hebrew_date
+    internal: true        # Internal components will not be exposed to the frontend
+    update_interval: never
+
+number:
+  - platform: template
+    name: 57 Degree Shabbos Starts
+    id: deg_shabbos_starts
+    optimistic: true
+    min_value: -5.000
+    max_value: 30.000 # this allows for early shabbosim
+    step: .001
+    mode: box
+    restore_value: true
+    initial_value: ${deg_shabbos_starts}
+  - platform: template
+    name: 58 Degree Shabbos Ends
+    id: deg_shabbos_ends
+    optimistic: true
+    min_value: -5.000
+    max_value: 30.000
+    step: .001
+    mode: box
+    restore_value: true
+    initial_value: ${deg_shabbos_ends}
+
+button:
+  - platform: template
+    name: 56 Set To Alter Rebbe Zmanim
+    on_press:
+      - lambda: 'Melacha::setAlterRebbeZmanim();'
