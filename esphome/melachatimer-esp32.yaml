@@ -1,0 +1,46 @@
+#-------------------------------------------- 
+#------------ User Configuration ------------
+#--------------------------------------------
+
+# Switch this section based on your chip
+# esp8266:
+#   board: nodemcuv2
+#   restore_from_flash: true
+esp32:
+  board: esp32doit-devkit-v1
+
+substitutions:
+  device_name:   "melachatimer-esp32"      # access web UI using "device_name".local/ or it's IP
+  friendly_name: "MelachaTimer esp32"
+  
+  relay_1_gpio:       "13"              # Switch this section
+  button_1_gpio:      "4"               # based on your chip
+  built_in_led_gpio:  "2"
+  led_inverted:       "false"
+
+  relay_restore_mode:    "ALWAYS_OFF"              # relay and led state on startup, change to ALWAYS_ON,
+  inverted_shabbos_mode: "RESTORE_DEFAULT_OFF"     # to default relay on for Shabbos see esphome.io/components/switch/
+
+  timezone: America/New_York            # check format at en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  eretz_yisrael: "RESTORE_DEFAULT_OFF"  # switch to RESTORE_DEFAULT_ON if located in EY and do a one day Yom Tov
+
+  latitude:  "40.669000"                # change to your location (important for proper zmanim) defaults to  40.669000
+  longitude: "-73.942770"               # 770 Chabad Lubavitch World Headquarters                           -73.942770
+  
+  deg_shabbos_starts: "-0.833"          # shkiah is at -0.833
+  deg_shabbos_ends:   "-8.5"            # time based off Alter Rebbe www.chabad.org/3209349
+  deg_tzeit:          "-6"
+
+esphome:
+  includes:
+    - header-files/hebrewcalender_melachaplug.h
+    - header-files/timer_jewish.h
+
+packages:
+  # Local Packages saved in plugins folder
+  general:              !include plugins/melachatimer/general.yaml           # Required
+  melacha:              !include plugins/melachatimer/melacha.yaml           # Required
+  timer:                !include plugins/melachatimer/timer.yaml             # Required
+  plug:                 !include plugins/melachatimer/plug.yaml              # Required
+  location:             !include plugins/melachatimer/location.yaml          # Required
+  optional:             !include plugins/melachatimer/optional.yaml          # Optional
